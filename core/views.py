@@ -2,7 +2,7 @@ from django.shortcuts import render
 import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from models import Player,User,Event
+from models import Player,User,Event,Bet
 
 def index(request):
     return render(request, 'index.html')
@@ -27,6 +27,16 @@ def create_event(request):
         e.save()
         return HttpResponse(json.dumps(final_dict), content_type="application/json")
 
+@csrf_exempt
+def place_bet(request):
+	evt = Event.objects.get(id = request.POST.get("event_id"))
+	player = Player.objects.get(id = request.POST.get("player_id"))
+	bet_amount = request.POST.get("amount")
+	current_user = User.objects.get(id= request.POST.get("user_id"))
+	ror = request.POST.get("return_rate")
+	bet = Bet(event = evt, player = player, amount = bet_amount, rate_of_return = ror, user = current_user)
+	bet.save()
+	return HttpResponse("<html><body>Enjoy betting you sucker</body></html>")
 
 def get_userprofile(request):
 
