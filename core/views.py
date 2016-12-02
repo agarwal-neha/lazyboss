@@ -9,7 +9,7 @@ from django.core import serializers
 
 
 def index(request):
-    return render(request, 'index.html')
+	return render(request, 'index.html')
 
 @csrf_exempt
 def create_event(request):
@@ -29,6 +29,17 @@ def create_event(request):
         e = Event(**final_dict)
         e.save()
         return HttpResponse()
+
+@csrf_exempt
+def place_bet(request):
+	evt = Event.objects.get(id = request.POST.get("event_id"))
+	player = Player.objects.get(id = request.POST.get("player_id"))
+	bet_amount = request.POST.get("amount")
+	current_user = User.objects.get(id= request.POST.get("user_id"))
+	ror = request.POST.get("return_rate")
+	bet = Bet(event = evt, player = player, amount = bet_amount, rate_of_return = ror, user = current_user)
+	bet.save()
+	return HttpResponse("<html><body>Enjoy betting you sucker</body></html>")
 
 def get_events(request):
     if request.method == 'GET':
@@ -66,6 +77,23 @@ def myconverter(o):
        return o.__str__()
 
 def get_userprofile(request):
+    return HttpResponse(json.dumps(user_data), content_type="application/json")
 
-    return HttpResponse(json.dumps(user_data), content_type="application/json")        
-    
+@csrf_exempt
+def get_all_players(request):
+	if request.method == 'GET':
+		
+		players = Player.objects.all()
+		data = serializers.serialize('json', players)
+		return HttpResponse(data, content_type="application/json")
+
+@csrf_exempt
+def add_player(request):
+	if request.method == 'POST':
+		player_current_rating = get_player_current_rating()
+		new_player = Player(name = request.POST.get("name"), rating = player_current_rating)
+		new_player.save()
+		return HttpResponse("<html><body>Added</body></html>")
+
+def get_player_current_rating():
+	return 4

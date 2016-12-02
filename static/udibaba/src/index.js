@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {ProfilePage} from './Container/ProfileContainer.js'
+import {HomepageContainer} from './Container/homepageContainer'
 import './index.css';
 
 ReactDOM.render(
-  <ProfilePage />,
+  <HomepageContainer />,
   document.getElementById('root')
 );
