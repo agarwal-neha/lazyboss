@@ -1,10 +1,9 @@
 import React from 'react';
-import $ from "jquery";
 import ReactDOM from 'react-dom';
-import {ProfileNav} from './Component/ProfileNav.js'
+import {ProfilePage} from './Container/ProfileContainer.js'
 import './index.css';
 
 ReactDOM.render(
-  <ProfileNav />,
+  <ProfilePage />,
   document.getElementById('root')
 );
