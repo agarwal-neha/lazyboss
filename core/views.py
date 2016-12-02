@@ -70,3 +70,49 @@ def add_player(request):
 
 def get_player_current_rating():
 	return 4
+
+
+def index(request):
+    return render(request, 'index.html')
+
+def get_user_details(user_id):
+
+    """
+    :param id: user ID
+    :return: user details
+    """
+    user_id=1
+    user_detail = models.User_profile.objects.get(user=user_id)
+    kkk = user_detail.bet
+    print user_detail.bet
+    print "LLLLLLLLLLL"
+
+    result = {
+        'id': user_detail.id,
+        'username': user_detail.user.username,
+        'email': user_detail.user.email,
+        'first_name': user_detail.user.first_name,
+        'last_name': user_detail.user.last_name,
+        'bet_history': JsonResponse(kkk),
+        'points': user_detail.points
+    }
+
+    return result
+
+@csrf_exempt
+def user_details(request):
+
+    if request.method == 'GET':
+        # data = json.loads(request.body)
+
+        user_id = request.GET.get('user_id')
+        data = get_user_details(user_id)
+        print data
+
+
+    result = {}
+
+    # Extract user details and history
+
+    return HttpResponse(JsonResponse(data), content_type="application/json")
+
