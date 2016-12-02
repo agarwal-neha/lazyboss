@@ -43,7 +43,7 @@ class Player_event (models.Model):
    player = models.ForeignKey(Player)
 
    def __unicode__(self):
-      return self.player.name + '--' + self.event.name
+      return str(self.player.name) + '--' + str(self.event.name)
 
 
 class Bet(models.Model):
@@ -55,6 +55,13 @@ class Bet(models.Model):
    final_amount = models.IntegerField(default = 0)
 
    def __unicode__(self):
-      return self.user + '--' + self.player
+      return str(self.user) + '--' + str(self.player)
 
+class User_profile(models.Model):
+   user = models.ForeignKey(User)
+   points = models.IntegerField(default = 0)
+   bet = models.ForeignKey(Bet)
+
+   def __unicode__(self):
+      return self.user.username
 
