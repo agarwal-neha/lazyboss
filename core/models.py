@@ -14,7 +14,7 @@ EVENT_CATEGORY = (
 )
 
 class Event(models.Model):
-   name = models.CharField(max_length=30)
+   name = models.CharField(max_length=40)
    event_date = models.DateTimeField()
    organizer = models.OneToOneField(User)
    start_date = models.DateTimeField()
@@ -30,7 +30,7 @@ class Event(models.Model):
 
 
 class Player (models.Model):
-   image_link = models.CharField(max_length=1000)
+   image_link = models.CharField(max_length=1000, default = "")
    name = models.CharField(max_length=30)
    rating = models.IntegerField(default = 0)
 
@@ -43,7 +43,7 @@ class Player_event (models.Model):
    player = models.ForeignKey(Player)
 
    def __unicode__(self):
-      return str(self.player.name) + '--' + str(self.event.name)
+      return self.player.name + self.event.name
 
 
 class Bet(models.Model):
@@ -55,7 +55,7 @@ class Bet(models.Model):
    final_amount = models.IntegerField(default = 0)
 
    def __unicode__(self):
-      return str(self.user) + '--' + str(self.player)
+      return str(self.user) + str(self.player)
 
 class User_profile(models.Model):
    user = models.ForeignKey(User)
@@ -64,4 +64,3 @@ class User_profile(models.Model):
 
    def __unicode__(self):
       return self.user.username
-
