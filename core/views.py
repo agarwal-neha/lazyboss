@@ -51,4 +51,4 @@ def myconverter(o):
 def get_userprofile(request):
 
     return HttpResponse(json.dumps(user_data), content_type="application/json")        
-    
+

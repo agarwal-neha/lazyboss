@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 import views
 
 
 urlpatterns = [
-    url(r'^index/$', views.index),
+    url(r'^$', views.index),
     url(r'^place/', views.place_bet),
 ]
