@@ -5,7 +5,7 @@ import styles from './LiveEvent.css'
 export default class LiveEvent extends Component {
     render() {
       return (
-        <div className="card">
+        <div className="card col-md-">
           <h4 className="card-title">Cricket: Veg vs Non Veg</h4>
           <br/>
           Enter the bet amount
