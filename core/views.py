@@ -2,8 +2,9 @@ from django.shortcuts import render
 import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from models import Player,User,Event,Bet
+from models import Player,User,Event,Bet,Player_event
 import datetime
+from django.core import serializers
 
 def index(request):
 	return render(request, 'index.html')
@@ -36,7 +37,7 @@ def place_bet(request):
 	bet = Bet(event = evt, player = player, amount = bet_amount, rate_of_return = ror, user = current_user)
 	bet.save()
 	return HttpResponse("<html><body>Enjoy betting you sucker</body></html>")
-	
+
 def get_events(request):
     if request.method == 'GET':
         current_date = datetime.datetime.now()
@@ -49,5 +50,23 @@ def myconverter(o):
        return o.__str__()
 
 def get_userprofile(request):
-    return HttpResponse(json.dumps(user_data), content_type="application/json")        
+    return HttpResponse(json.dumps(user_data), content_type="application/json")
 
+@csrf_exempt
+def get_all_players(request):
+	if request.method == 'GET':
+		
+		players = Player.objects.all()
+		data = serializers.serialize('json', players)
+		return HttpResponse(data, content_type="application/json")
+
+@csrf_exempt
+def add_player(request):
+	if request.method == 'POST':
+		player_current_rating = get_player_current_rating()
+		new_player = Player(name = request.POST.get("name"), rating = player_current_rating)
+		new_player.save()
+		return HttpResponse("<html><body>Added</body></html>")
+
+def get_player_current_rating():
+	return 4
