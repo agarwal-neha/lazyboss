@@ -9,14 +9,13 @@ export class HomepageContainer extends React.Component {
        return (
        	<div>
           <HomeNav/>
-          <CategoryNav />
           <div className='row'>
-          <div className='col-md-6'>
-          	<LiveEvent />
-          </div>
-          <div className='col-md-6'>
-          	<LiveEvent />
-          </div>
+	          <div className='col-md-6'>
+	          	<LiveEvent />
+	          </div>
+	          <div className='col-md-6'>
+	          	<LiveEvent />
+	          </div>
           </div>
         </div>
         );
