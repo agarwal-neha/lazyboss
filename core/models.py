@@ -16,7 +16,7 @@ EVENT_CATEGORY = (
 class Event(models.Model):
    name = models.CharField(max_length=40)
    event_date = models.DateTimeField()
-   organizer = models.OneToOneField(User)
+   organizer = models.ForeignKey(User)
    start_date = models.DateTimeField()
    end_date = models.DateTimeField()
    description = models.CharField(max_length=100)

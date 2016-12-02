@@ -4,8 +4,10 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import models
 import datetime
+from django.forms.models import model_to_dict
 from django.core import serializers
 from django.http import JsonResponse
+
 
 def index(request):
 	return render(request, 'index.html')
@@ -15,7 +17,7 @@ def create_event(request):
     if request.method == 'POST':
         final_dict = {}
         final_dict['name'] = request.POST.get("name")
-        user = User.objects.get(pk=request.POST.get("user_id"))
+        user = User.objects.get(id=request.POST.get("user_id"))
         final_dict['organizer'] = user
         final_dict['max_bet'] = request.POST.get("max_bet")
         final_dict['min_bet'] = request.POST.get("min_bet")
@@ -24,9 +26,16 @@ def create_event(request):
         final_dict['limit'] = request.POST.get("limit")
         final_dict['description'] = request.POST.get("desc")
         final_dict['category'] = request.POST.get("category")
+        final_dict['event_date'] = request.POST.get("event_date")
+        player1 = request.POST.get("player1")
+        player2 = request.POST.get("player2")
         e = Event(**final_dict)
         e.save()
-        return HttpResponse(json.dumps(final_dict), content_type="application/json")
+        p1 = Player_event(player_id= player1,event_id=e.id)
+        p2 = Player_event(player_id= player2,event_id=e.id)
+        p1.save()
+        p2.save()
+        return HttpResponse()
 
 @csrf_exempt
 def place_bet(request):
@@ -42,9 +51,33 @@ def place_bet(request):
 def get_events(request):
     if request.method == 'GET':
         current_date = datetime.datetime.now()
-        events = Event.objects.filter(start_date__lte=current_date).values('name',
-            'organizer','max_bet','min_bet','start_date','end_date','limit','description','category')
+        events = Event.objects.filter(start_date__lte=current_date).values()
+        for event in events:
+            user = event.get("organizer_id")
+            user_dict = User.objects.get(id=user)
+            event['organizer'] = user_dict.__dict__
+            print "*************",event['id']
+            players = Player_event.objects.filter(event_id = event['id'])
+            player_list = []
+            for player in players:
+                player_dict ={}
+                player_dict = player.__dict__
+                player_detail = Player.objects.get(id = player_dict['player_id'])
+                player_list.append(player_detail.__dict__)
+            print "+++++++",players
+            event['players'] = player_list
+
         return HttpResponse(json.dumps(list(events),default = myconverter), content_type='application/json')
+
+def get_players_by_event(request):
+    event_id = request.GET.get('event_id')
+    players = Player_event.objects.filter(event_id = event_id)
+    player_list = []
+    for player in players:
+        player_detail = Player.objects.get(id = player.player_id)
+        player_dict = {'name':player_detail.name,'rating':player_detail.rating,'image':player_detail.image_link}
+        player_list.append(player_dict)
+    return HttpResponse(json.dumps(player_list),content_type = 'application/json')
 
 def myconverter(o):
    if isinstance(o, datetime.datetime):
