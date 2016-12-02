@@ -60,7 +60,6 @@ class Bet(models.Model):
 class User_profile(models.Model):
    user = models.ForeignKey(User)
    points = models.IntegerField(default = 0)
-   bet = models.ForeignKey(Bet)
 
    def __unicode__(self):
       return self.user.username

@@ -2,9 +2,10 @@ from django.shortcuts import render
 import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from models import Player,User,Event,Bet,Player_event
+import models
 import datetime
 from django.core import serializers
+from django.http import JsonResponse
 
 def index(request):
 	return render(request, 'index.html')
@@ -49,6 +50,9 @@ def myconverter(o):
    if isinstance(o, datetime.datetime):
        return o.__str__()
 
+def myconverter2(o):
+    return o.__str__()
+
 def get_userprofile(request):
     return HttpResponse(json.dumps(user_data), content_type="application/json")
 
@@ -75,6 +79,12 @@ def get_player_current_rating():
 def index(request):
     return render(request, 'index.html')
 
+def get_bet_details(user_id):
+    bet_detail = models.Bet.objects.filter(user = user_id).values()
+
+    return json.dumps(list(bet_detail),default = myconverter2)
+
+
 def get_user_details(user_id):
 
     """
@@ -82,18 +92,15 @@ def get_user_details(user_id):
     :return: user details
     """
     user_id=1
-    user_detail = models.User_profile.objects.get(user=user_id)
-    kkk = user_detail.bet
-    print user_detail.bet
-    print "LLLLLLLLLLL"
+    one = models.User_profile.objects.filter(user=user_id)
+    user_detail = one[0]
 
     result = {
-        'id': user_detail.id,
         'username': user_detail.user.username,
         'email': user_detail.user.email,
         'first_name': user_detail.user.first_name,
         'last_name': user_detail.user.last_name,
-        'bet_history': JsonResponse(kkk),
+        'bet_history': get_bet_details(user_id),
         'points': user_detail.points
     }
 
@@ -103,16 +110,10 @@ def get_user_details(user_id):
 def user_details(request):
 
     if request.method == 'GET':
-        # data = json.loads(request.body)
-
         user_id = request.GET.get('user_id')
-        data = get_user_details(user_id)
-        print data
-
-
-    result = {}
+        result = get_user_details(user_id)
 
     # Extract user details and history
 
-    return HttpResponse(JsonResponse(data), content_type="application/json")
+    return HttpResponse(JsonResponse(result), content_type="application/json")
 
