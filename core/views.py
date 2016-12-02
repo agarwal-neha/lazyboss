@@ -26,8 +26,14 @@ def create_event(request):
         final_dict['description'] = request.POST.get("desc")
         final_dict['category'] = request.POST.get("category")
         final_dict['event_date'] = request.POST.get("event_date")
+        player1 = request.POST.get("player1")
+        player2 = request.POST.get("player2")
         e = Event(**final_dict)
         e.save()
+        p1 = Player_event(player_id= player1,event_id=e.id)
+        p2 = Player_event(player_id= player2,event_id=e.id)
+        p1.save()
+        p2.save()
         return HttpResponse()
 
 @csrf_exempt
