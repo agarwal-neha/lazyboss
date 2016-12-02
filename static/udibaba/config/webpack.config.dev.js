@@ -14,10 +14,14 @@ var paths = require('./paths');
 var publicPath = '/';
 // `publicUrl` is just like `publicPath`, but we will provide it to our app
 // as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
-// Omit trailing slash as %PUBLIC_PATH%/xyz looks better than %PUBLIC_PATH%xyz.
+// Omit trailing shlash as %PUBLIC_PATH%/xyz looks better than %PUBLIC_PATH%xyz.
 var publicUrl = '';
-// Get environment variables to inject into our app.
+var node_dir = __dirname + '/../node_modules';
+
+// Get enrivonment variables to inject into our app.
 var env = getClientEnvironment(publicUrl);
+var CSS_LOADER = "style!css!postcss",
+    SCSS_LOADER = "style!css!postcss?minimize!sass-loader";
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
@@ -45,6 +49,7 @@ module.exports = {
     require.resolve('react-dev-utils/webpackHotDevClient'),
     // We ship a few polyfills by default:
     require.resolve('./polyfills'),
+    require.resolve('bootstrap-loader'),
     // Finally, this is your app's code:
     paths.appIndexJs
     // We include the app code last so that if there is a runtime error during
@@ -69,19 +74,17 @@ module.exports = {
     // We use `fallback` instead of `root` because we want `node_modules` to "win"
     // if there any conflicts. This matches Node resolution mechanism.
     // https://github.com/facebookincubator/create-react-app/issues/253
+    alias: {
+      jquery: node_dir + '/jquery/dist/jquery.min.js',
+    },
     fallback: paths.nodePaths,
     // These are the reasonable defaults supported by the Node ecosystem.
     // We also include JSX as a common component filename extension to support
     // some tools, although we do not recommend using it, see:
     // https://github.com/facebookincubator/create-react-app/issues/290
-    extensions: ['.js', '.json', '.jsx', ''],
-    alias: {
-      // Support React Native Web
-      // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
-      'react-native': 'react-native-web'
-    }
+    extensions: ['.js', '.json', '.jsx', '']
   },
-  
+
   module: {
     // First, run the linter.
     // It's important to do this before Babel processes the JS.
@@ -93,22 +96,20 @@ module.exports = {
       }
     ],
     loaders: [
+      {
+        test: /\.styl$/,
+        loader: "style!css!stylus"
+      },
       // Process JS with Babel.
       {
         test: /\.(js|jsx)$/,
         include: paths.appSrc,
-        loader: 'babel',
-        query: {
-          
-          // This is a feature of `babel-loader` for webpack (not Babel itself).
-          // It enables caching results in ./node_modules/.cache/react-scripts/
-          // directory for faster rebuilds. We use findCacheDir() because of:
-          // https://github.com/facebookincubator/create-react-app/issues/483
-          cacheDirectory: findCacheDir({
-            name: 'react-scripts'
-          })
-        }
+        loaders: [
+        'babel?presets[]=es2015,presets[]=stage-0,presets[]=react,plugins[]=transform-runtime']
       },
+      { test: require.resolve("jquery"), loader: 'expose?$' },
+      { test: require.resolve("jquery"), loader: "imports?jQuery=jquery" },
+
       // "postcss" loader applies autoprefixer to our CSS.
       // "css" loader resolves paths in CSS and adds assets as dependencies.
       // "style" loader turns CSS into JS modules that inject <style> tags.
@@ -116,13 +117,25 @@ module.exports = {
       // in development "style" loader enables hot editing of CSS.
       {
         test: /\.css$/,
-        loader: 'style!css?importLoaders=1!postcss'
+        loader: CSS_LOADER
+      },
+      {
+        test: /\.scss$/,
+        loader: SCSS_LOADER
       },
       // JSON is not enabled by default in Webpack but both Node and Browserify
       // allow it implicitly so we also enable it.
       {
         test: /\.json$/,
         loader: 'json'
+      },
+      {
+        test: /bootstrap\/dist\/js\/umd\//,
+        loader: 'imports?jQuery=jquery'
+      },
+      {
+        test: /bootstrap-sass\/assets\/javascripts\//,
+        loader: 'imports?jQuery=jquery'
       },
       // "file" loader makes sure those assets get served by WebpackDevServer.
       // When you `import` an asset, you get its (virtual) filename.
@@ -146,7 +159,7 @@ module.exports = {
       }
     ]
   },
-  
+
   // We use PostCSS for autoprefixing only.
   postcss: function() {
     return [
@@ -175,6 +188,11 @@ module.exports = {
     // Makes some environment variables available to the JS code, for example:
     // if (process.env.NODE_ENV === 'development') { ... }. See `./env.js`.
     new webpack.DefinePlugin(env),
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery",
+      "window.jQuery": "jquery"
+    }),
     // This is necessary to emit hot updates (currently CSS only):
     new webpack.HotModuleReplacementPlugin(),
     // Watcher doesn't work well if you mistype casing in a path so we use
