@@ -1,16 +1,27 @@
 import React,{Component} from 'react'
 import {Form,FormGroup,Col,FormControl,ControlLabel,Checkbox,Button} from 'react-bootstrap'
 
+let current_user = {
+  "User" : "Sharon Boyd",
+  "Email" : "sboyd0@illinois.edu",
+  "Phone" : "86-(429)234-7757",
+  "Total_Points" : "$8.95"
+}
 export default class ProfilePage extends Component{
 	constructor(props) {
 		super(props)
 		this.state = {
-			updateMode: false
+			updateMode: false,
+			user: current_user
 		}
 	}
 
 	changeMode = () => {
 		this.setState({updateMode: true})
+	}
+
+	saveState = (value) => {
+		this.setState({data: value})
 	}
 
 	render() {
@@ -25,22 +36,15 @@ export default class ProfilePage extends Component{
 	    </FormGroup>
 	    <FormGroup controlId='formHorizontalPassword'>
 	      <Col componentClass={ControlLabel} sm={2}>
-	        Password
+	        Phone Number
 	      </Col>
 	      <Col sm={10}>
-	        <FormControl type='password' placeholder='Password' />
+	        <FormControl type='number' placeholder='Phone' />
 	      </Col>
 	    </FormGroup>
-
 	    <FormGroup>
 	      <Col smOffset={2} sm={10}>
-	        <Checkbox>Remember me</Checkbox>
-	      </Col>
-	    </FormGroup>
-
-	    <FormGroup>
-	      <Col smOffset={2} sm={10}>
-	        <Button type='submit'>
+	        <Button type='button' onClick={this.saveState}>
 	          Save
 	        </Button>
 	      </Col>
@@ -51,29 +55,29 @@ export default class ProfilePage extends Component{
 	  	<FormGroup>
       <ControlLabel>Name</ControlLabel>
       <FormControl.Static>
-        Name
+        {current_user.User}
       </FormControl.Static>
     </FormGroup>
     <FormGroup>
-      <ControlLabel>Static text</ControlLabel>
+      <ControlLabel>Email</ControlLabel>
       <FormControl.Static>
-        email@example.com
+      {current_user.Email}
       </FormControl.Static>
     </FormGroup>
     <FormGroup>
-      <ControlLabel>Static text</ControlLabel>
+      <ControlLabel>Phone Number</ControlLabel>
       <FormControl.Static>
-        email@example.com
+      	{current_user.Phone}
       </FormControl.Static>
     </FormGroup>
     <FormGroup>
-      <ControlLabel>Static text</ControlLabel>
+      <ControlLabel>Available Points</ControlLabel>
       <FormControl.Static>
-        email@example.com
+      	{current_user.Total_Points}
       </FormControl.Static>
     </FormGroup>
     <Button type='button' onClick={this.changeMode}>
-	          Update Info.
+	          Update
 	        </Button>
 	  </Form>
 	  )
