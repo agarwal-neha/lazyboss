@@ -7,7 +7,7 @@ import datetime
 from django.core import serializers
 
 def index(request):
-    return render(request, 'index.html')
+	return render(request, 'index.html')
 
 @csrf_exempt
 def create_event(request):
@@ -50,7 +50,6 @@ def myconverter(o):
        return o.__str__()
 
 def get_userprofile(request):
-
     return HttpResponse(json.dumps(user_data), content_type="application/json")
 
 @csrf_exempt
