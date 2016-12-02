@@ -10,12 +10,12 @@ export class HomepageContainer extends React.Component {
        	<div>
           <ProfileNav/>
           <div className='row'>
-          <div className='col-md-6'>
-          	<LiveEvent />
-          </div>
-          <div className='col-md-6'>
-          	<LiveEvent />
-          </div>
+	          <div className='col-md-6'>
+	          	<LiveEvent />
+	          </div>
+	          <div className='col-md-6'>
+	          	<LiveEvent />
+	          </div>
           </div>
         </div>
         );

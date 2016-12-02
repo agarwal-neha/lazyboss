@@ -1,6 +1,8 @@
 .card {
 	border: 1px solid #f1f1f1;
-	padding: 10%;
+	padding-left: 10%;
+	padding-right: 10%;
+	padding-top: 5%;
 	word-wrap: break-word;
 	height: 350px;
 	background-color: #e5e5ff;
