@@ -3,6 +3,7 @@ import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from models import Player,User,Event,Bet
+import datetime
 
 def index(request):
     return render(request, 'index.html')
@@ -12,8 +13,6 @@ def create_event(request):
     if request.method == 'POST':
         final_dict = {}
         final_dict['name'] = request.POST.get("name")
-        # player = Player.Objects.get(pk=request.POST.get("player_id"))
-        # final_dict['player'] = player
         user = User.objects.get(pk=request.POST.get("user_id"))
         final_dict['organizer'] = user
         final_dict['max_bet'] = request.POST.get("max_bet")
@@ -37,6 +36,17 @@ def place_bet(request):
 	bet = Bet(event = evt, player = player, amount = bet_amount, rate_of_return = ror, user = current_user)
 	bet.save()
 	return HttpResponse("<html><body>Enjoy betting you sucker</body></html>")
+	
+def get_events(request):
+    if request.method == 'GET':
+        current_date = datetime.datetime.now()
+        events = Event.objects.filter(start_date__lte=current_date).values('name',
+            'organizer','max_bet','min_bet','start_date','end_date','limit','description','category')
+        return HttpResponse(json.dumps(list(events),default = myconverter), content_type='application/json')
+
+def myconverter(o):
+   if isinstance(o, datetime.datetime):
+       return o.__str__()
 
 def get_userprofile(request):
 
