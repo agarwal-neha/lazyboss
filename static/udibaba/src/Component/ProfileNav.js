@@ -1,5 +1,7 @@
 import {Navbar, Nav, NavItem} from 'react-bootstrap'
 import React,{Component} from 'react'
+import ProfilePage from './ProfilePage'
+import BetHistory from './betHistory'
 
 
 export class ProfileNav extends Component {
@@ -35,6 +37,10 @@ export class ProfileNav extends Component {
                   </Nav>
                 </Navbar.Collapse>
               </Navbar>);
-        return (<div>{navbarInstance}</div>)
+        return (<div>{navbarInstance}
+          <div className='container'>
+          <div className='col-md-12'>
+          {this.state.showProfile ? <ProfilePage /> : <BetHistory/> }
+          </div> </div></div>)
     }
 }
