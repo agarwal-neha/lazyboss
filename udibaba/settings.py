@@ -22,10 +22,44 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '480zt^*_*!xqnkos&7@)r*yi^0$znmi4@(we#tn8e%&!*w)f&d'
 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "193335152404-44euevmc0g4tl2ie037ie0qb7nq9l39a.apps.googleusercontent.com"
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "9umKTbWgma7KHYRjuGpoY8JY"
+SOCIAL_AUTH_ENABLED_BACKENDS = ('google')
+
+AUTHENTICATION_BACKENDS = (
+  'social.backends.google.GoogleOAuth2',
+  'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
+SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = ['hashedin.com']
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.google.com/m8/feeds/'
+]
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'social.pipeline.social_auth.associate_by_email',
+    'social.pipeline.user.get_username',
+    'aws_sso.validate_user.validate_user',
+    'social.pipeline.user.create_user',
+    'aws_sso.views.views.grant_perms',  # <--- set the path to the function
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details'
+)
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -78,9 +112,13 @@ WSGI_APPLICATION = 'udibaba.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+                'ENGINE': 'django.db.backends.mysql',
+                'HOST': os.environ.get('HOST', 'localhost'),
+                'PORT': os.environ.get('PORT', '3306'),
+                'NAME': os.environ.get('DBNAME', 'lazyboss'),
+                'USER': os.environ.get('DBUSER', 'root'),
+                'PASSWORD': os.environ.get('DBPASSWORD', 'root'),
+                }
 }
 
 
