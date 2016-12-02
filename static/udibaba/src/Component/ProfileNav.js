@@ -1,7 +1,5 @@
 import {Navbar, Nav, NavItem,Modal,Button} from 'react-bootstrap'
 import React,{Component} from 'react'
-import ProfilePage from './ProfilePage'
-import BetHistory from './betHistory'
 import {postApiRequest} from '../Utils'
 
 const apiUrl='https://localhost:8000/'
@@ -11,21 +9,11 @@ export class ProfileNav extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            showProfile: true,
             showModal: false
         }
     }
 
-    showProfile = () => {
-        this.setState({showProfile: true})
-    }
-
-    showHistory = () => {
-        this.setState({showProfile: false})
-    }
-
     createEvent = () => {
-      console.log("bc")
       this.setState({showModal: true})
     }
 
@@ -44,7 +32,6 @@ export class ProfileNav extends Component {
       'startdate':this.refs.startdate.value,
       'enddate':this.refs.enddate.value
       }
-      console.log(data)
       postApiRequest(url,data,this.saveEventcallback,this.errorCallback,null)
     }
 
@@ -78,7 +65,6 @@ export class ProfileNav extends Component {
         return (<div>{navbarInstance}
           <div className='container'>
           <div className='col-md-12'>
-          {this.state.showProfile ? <ProfilePage /> : <BetHistory/> }
           </div> </div>
           <Modal show={this.state.showModal} onHide={this.closeModal}>
           <Modal.Header closeButton>
@@ -87,35 +73,52 @@ export class ProfileNav extends Component {
           <Modal.Body>
             <div className="row">
             <label className="col-md-3">Event Name:</label>
-            <input type="text" name="EventName" ref="EventName" className="col-md-7"/>
+            <div className='col-md-7'>
+            <input type="text" name="EventName" ref="EventName" className="form-control"/>
+            </div>
             </div>
             <div className="row">
             <label className="col-md-3">Player 1:</label>
-            <input type="text" name="Player1" ref="Player1" className="col-md-7"/>
+            <div className='col-md-7'>
+            <input type="text" name="Player1" ref="Player1" className=" form-control"/>
             </div>
+            </div>
+
             <div className="row">
             <label className="col-md-3">Player 2:</label>
-            <input type="text" name="Player2" ref="Player2" className="col-md-7"/>
-            </div>
+            <div className='col-md-7'>
+            <input type="text" name="Player2" ref="Player2" className="form-control"/>
+            </div></div>
+
             <div className="row">
             <label className="col-md-3">Max bet</label>
-            <input type="number" name="maxbet" ref="maxbet" className="col-md-7"/>
-            </div>
+            <div className='col-md-7'>
+            <input type="number" name="maxbet" ref="maxbet" className="form-control"/>
+            </div></div>
+
             <div className="row">
             <label className="col-md-3">Min bet</label>
-            <input type="number" name="minbet" ref="minbet" className="col-md-7"/>
-            </div>
+            <div className='col-md-7'>
+            <input type="number" name="minbet" ref="minbet" className="form-control"/>
+            </div></div>
+
             <div className="row">
             <label className="col-md-3">Total Limit</label>
-            <input type="number" name="totallimit" ref="totallimit" className="col-md-7"/>
-            </div>
+            <div className='col-md-7'>
+            <input type="number" name="totallimit" ref="totallimit" className="form-control"/>
+            </div></div>
+
             <div className="row">
             <label className="col-md-3">Start date:</label>
-            <input type="datetime-local" name="startdate" ref="startdate" className="col-md-7"/>
+            <div className='col-md-7'>
+            <input type="datetime-local" name="startdate" ref="startdate" className="form-control"/>
+            </div>
             </div>
             <div className="row">
             <label className="col-md-3">End date:</label>
-            <input type="datetime-local" name="enddate" ref="enddate" className="col-md-7"/>
+            <div className='col-md-7'>
+            <input type="datetime-local" name="enddate" ref="enddate" className="form-control"/>
+            </div>
             </div>
           </Modal.Body>
           <Modal.Footer>
