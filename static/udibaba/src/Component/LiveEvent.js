@@ -52,41 +52,35 @@ export default class LiveEvent extends Component {
       console.log(this.props.event)
       return (
         <div className="card">
-          <h4 className="card-title">{this.props.event.name}</h4>
-          <FormGroup>
-          <ControlLabel>Start Time</ControlLabel>
-          <FormControl.Static>
-          {moment(this.props.event.start_date).format('MM-DD-YYYY')}&nbsp;{moment(this.props.event.start_date).format('LT')}
-          </FormControl.Static>
-          </FormGroup>
-          <FormGroup>
-          <ControlLabel>End Time</ControlLabel>
-          <FormControl.Static>
-          {moment(this.props.event.end_date).format('MM-DD-YYYY')}&nbsp;{moment(this.props.event.end_date).format('LT')}
-          </FormControl.Static>
-          </FormGroup>
-          <FormGroup>
-          <ControlLabel>Max Bet</ControlLabel>
-          <FormControl.Static>
-          {this.props.event.max_bet}
-          </FormControl.Static>
-          </FormGroup>
-          <FormGroup>
-          <ControlLabel>Min Bet</ControlLabel>
-          <FormControl.Static>
-          {this.props.event.min_bet}
-          </FormControl.Static>
-          </FormGroup>
-          <FormGroup>
-          <ControlLabel>Organizer</ControlLabel>
-          <FormControl.Static>
-          {this.props.event.organizer.username}
-          </FormControl.Static>
-          </FormGroup>
-          <br/><br/>
+        <h4 className="card-title">{this.props.event.name}</h4>
         <div className="card-block">
+        <img width="50" height="50" className="card-img-top" src="https://www.hashedin.com/img/about_us/leader/himanshu_varshaney.jpg"/>
+        <img width="50" height="50" className="card-img-top faceOff" src="https://www.hashedin.com/img/about_us/leader/sripathi_krishnan.jpg"/>
+        <br/>
+        <table className='table borderless'>
+          <tr>
+            <td>Start Time</td>
+            <td>{moment(this.props.event.start_date).format('MM-DD-YYYY')}</td>
+          </tr>
+          <tr>
+            <td>End Time</td>
+            <td>{moment(this.props.event.end_date).format('MM-DD-YYYY')}</td>
+          </tr>
+          <tr>
+            <td>Max Bet</td>
+            <td>{this.props.event.max_bet}</td>
+          </tr>
+           <tr>
+            <td>Min Bet</td>
+            <td>{this.props.event.min_bet}</td>
+          </tr>
+          <tr>
+            <td>Organizer</td>
+            <td>{this.props.event.organizer.username}</td>
+          </tr>
+          </table>
           <a className="bet1 btn btn-primary" href="#" onClick={this.placebet}> Place Bet</a>
-          <a className="bet1 btn btn-primary" href="#" onClick={this.updateStatus}> Enter Result</a>
+          <a className="bet2 btn btn-primary" href="#" onClick={this.updateStatus}> Enter Result</a>
         </div>
         <Modal show={this.state.placebetmodal} onHide={this.closeModal}>
           <Modal.Header closeButton>

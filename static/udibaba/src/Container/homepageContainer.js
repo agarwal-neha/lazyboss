@@ -30,7 +30,7 @@ export class HomepageContainer extends React.Component {
           <ProfileNav/><div className='row'>
           {
             this.state.response ? this.state.response.map((data,index)=>{
-              return <div className='col-md-6'><LiveEvent key={index} placebet={this.placebet} event={data}/></div>
+              return <div className='col-md-4'><LiveEvent key={index} placebet={this.placebet} event={data}/></div>
             }):null
           }
           </div>
