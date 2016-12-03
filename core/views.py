@@ -2,8 +2,9 @@ from django.shortcuts import render
 import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from models import Player,User,Event,Player_event,Bet,User_profile
-import datetime
+
+from models import Player,User,Event,Player_event,Bet,User_profile, Player_rating
+import datetime, decimal
 from django.forms.models import model_to_dict
 from django.core import serializers
 from django.http import JsonResponse
@@ -16,22 +17,26 @@ def index(request):
 def create_event(request):
     if request.method == 'POST':
         final_dict = {}
-        final_dict['name'] = request.POST.get("name")
-        user = User.objects.get(id=request.POST.get("user_id"))
+        print request.body
+        data = json.loads(request.body)
+        print data
+        final_dict['name'] = data.get('event_name')
+        user = request.user
         final_dict['organizer'] = user
-        final_dict['max_bet'] = request.POST.get("max_bet")
-        final_dict['min_bet'] = request.POST.get("min_bet")
-        final_dict['start_date'] = request.POST.get("start_date")
-        final_dict['end_date'] = request.POST.get("end_date")
-        final_dict['limit'] = request.POST.get("limit")
-        final_dict['description'] = request.POST.get("desc")
-        final_dict['category'] = request.POST.get("category")
-        final_dict['event_date'] = request.POST.get("event_date")
+        final_dict['max_bet'] = data.get('max_bet')
+        final_dict['min_bet'] = data.get('min_bet')
+        final_dict['start_date'] = data.get('startdate')
+        final_dict['end_date'] = data.get('enddate')
+        final_dict['limit'] = data.get('totallimit')
+        final_dict['description'] = data.get('desc',"None")
+        final_dict['category'] = data.get('category',"Cricket")
+        final_dict['event_date'] = data.get('event_date')
+        print final_dict
         final_dict['winner_id'] = 1
-        player1 = request.POST.get("player1")
-        player2 = request.POST.get("player2")
         e = Event(**final_dict)
         e.save()
+        player1 = data.get("player_1")
+        player2 = data.get("player_2")
         p1 = Player_event(player_id= player1,event_id=e.id)
         p2 = Player_event(player_id= player2,event_id=e.id)
         p1.save()
@@ -40,20 +45,23 @@ def create_event(request):
 
 @csrf_exempt
 def place_bet(request):
-    evt = Event.objects.get(id = request.POST.get("event_id"))
-    player = Player.objects.get(id = request.POST.get("player_id"))
-    bet_amount = request.POST.get("amount")
-    current_user = User.objects.get(id= request.POST.get("user_id"))
-    ror = Player_event.objects.get(event_id=request.POST.get("event_id"),player_id=request.POST.get("player_id")).rate_of_return
+
+    data = json.loads(request.body)
+    evt = Event.objects.get(id = data.get("event_id"))
+    player = Player.objects.get(id = data.get("player_id"))
+    bet_amount = data.get("amount")
+    current_user = request.user
+    ror = Player_event.objects.get(event_id=data.get("event_id"),player_id=data.get("player_id")).rate_of_return
     total_bet_amount = bet_amount*ror
     evt.total_bet_amount += total_bet_amount
     evt.save()
-    if(check_if_more_betting_allowed(request.POST.get("event_id"))): 
+    if(check_if_more_betting_allowed(data.get("event_id"))): 
         bet = Bet(event = evt, player = player, amount = bet_amount, rate_of_return = ror, user = current_user)
         bet.save()
         return HttpResponse("<html><body>Enjoy betting you sucker</body></html>")
     else:
         return HttpResponse("<html><body>betting closed for this event</body></html>")
+
 
 def check_if_more_betting_allowed (event_id):
     evt = Event.objects.get(id = event_id)
@@ -85,22 +93,30 @@ def get_events(request):
 def get_players_by_event(request):
     event_id = request.GET.get('event_id')
     players = Player_event.objects.filter(event_id = event_id)
+    category = Event.objects.filter(id = event_id).first().category
+    update_rating(event_id)
     player_list = []
     for player in players:
         player_detail = Player.objects.get(id = player.player_id)
-        player_dict = {'name':player_detail.name,'rating':player_detail.rating,'image':player_detail.image_link}
+        rating = get_player_current_rating(player.id, category)
+        player_dict = {'name':player_detail.name,'rating':rating,'image':player_detail.image_link}
         player_list.append(player_dict)
-    return HttpResponse(json.dumps(player_list),content_type = 'application/json')
+    return HttpResponse(json.dumps((player_list), default = decimalconverter), content_type = 'application/json')
+
+
+def decimalconverter(o):
+   if isinstance(o, decimal.Decimal):
+       return o.__str__()
 
 def myconverter(o):
-   if isinstance(o, datetime.datetime):
-       return o.__str__()
+     if isinstance(o, datetime.datetime):
+             return o.__str__()
 
 def myconverter2(o):
     return o.__str__()
 
 def get_userprofile(request):
-    return HttpResponse(json.dumps(user_data), content_type="application/json")
+        return HttpResponse(json.dumps(user_data), content_type="application/json")
 
 @csrf_exempt
 def get_all_players(request):
@@ -113,17 +129,17 @@ def get_all_players(request):
 @csrf_exempt
 def add_player(request):
     if request.method == 'POST':
-        player_current_rating = get_player_current_rating()
-        new_player = Player(name = request.POST.get("name"), rating = player_current_rating)
+        data = json.loads(request.body)
+        player_current_rating = 4
+        new_player = Player(name = data.get("name"), rating = player_current_rating)
         new_player.save()
         return HttpResponse("<html><body>Added</body></html>")
 
 def get_player_current_rating():
     return 4
 
-
 def index(request):
-    return render(request, 'index.html')
+        return render(request, 'index.html')
 
 def get_bet_details(user_id):
     bet_detail = models.Bet.objects.filter(user = user_id).values()
@@ -159,14 +175,15 @@ def user_details(request):
         user_id = request.GET.get('user_id')
         result = get_user_details(user_id)
 
-    # Extract user details and history
 
+        # Extract user details and history
     return HttpResponse(JsonResponse(result), content_type="application/json")
 
 @csrf_exempt
 def update_result(request):
-    event_id = request.POST.get("event_id")
-    player_id = request.POST.get("player_id")
+    data = json.loads(request.body)
+    event_id = data.get("event_id")
+    player_id = data.get("player_id")
     event = Event.objects.get(id = event_id)
     event.winner = Player.objects.get(id = player_id)
     event.save()
@@ -194,3 +211,26 @@ def resolve_event(event_id):
         organizer.save()
 
 
+
+def get_player_current_rating(player_id, category):
+	rating = Player_rating.objects.filter(player__id = player_id, category = category).first().rating
+	if rating is None:
+		return 0
+
+	return rating;
+
+def calculate_player_rating(player_id, category):
+	played = Player_event.objects.filter(player__id = player_id, event__category = category).count()
+	won = Event.objects.filter(winner__id = player_id, category = category).count()
+	ratio = float(won)/(played*2)
+	return (ratio)*10;
+
+def update_rating(event_id):
+	players = Player_event.objects.filter(event__id = event_id)
+	category = Event.objects.filter(id = event_id).first().category
+	print category
+	for player in players:
+		calcuated_rating = calculate_player_rating(player.id, category)
+		pr = Player_rating.objects.filter(player_id = player.id, category = category).first()
+		pr.rating = calcuated_rating;
+		pr.save()

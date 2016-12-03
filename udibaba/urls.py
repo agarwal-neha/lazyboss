@@ -24,5 +24,4 @@ urlpatterns = [
     url(r'^get_events/',get_events),
     url(r'^get_players_by_event/',get_players_by_event),
     url(r'^update_result/',update_result),
-
 ]

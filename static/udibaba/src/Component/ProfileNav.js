@@ -1,16 +1,27 @@
-import {Navbar, Nav, NavItem,Modal,Button} from 'react-bootstrap'
+import {Navbar, Nav, NavItem,Modal,Button, Carousel} from 'react-bootstrap'
 import React,{Component} from 'react'
-import {postApiRequest} from '../Utils'
+import {postApiRequest,getApiRequest} from '../Utils'
+import styles from './ProfileNav.css'
 
-const apiUrl='https://localhost:8000/'
+const apiUrl='http://localhost:8000/'
 
 export class ProfileNav extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            showModal: false
+            showModal: false,
+            addPlayerModal:false,
+            players: null
         }
+    }
+
+    componentDidMount() {
+      getApiRequest(apiUrl+'players/',null,this.success,this.errorCallback,null)
+    }
+
+    success = (response) => {
+      this.setState({players:response})
     }
 
     createEvent = () => {
@@ -21,8 +32,22 @@ export class ProfileNav extends Component {
       this.setState({showModal:false})
     }
 
+    closePlayerModal = () => {
+      this.setState({addPlayerModal:false})
+    }
+
+
+    addPlayer = () => {
+      this.setState({addPlayerModal:true})
+    }
+
+    savePlayer=()=>{
+      let data = {name: this.refs.newPlayername.value}
+      postApiRequest(apiUrl+'player/',data,()=>{alert('Player added!')},()=>{console.log('error')},null)
+    }
+
     saveEvent = () => {
-      let url = apiUrl+'create_event'
+      let url = apiUrl+'create_event/'
       let data = {'event_name': this.refs.EventName.value,
       'player_1': this.refs.Player1.value,
       'player_2': this.refs.Player2.value,
@@ -30,7 +55,8 @@ export class ProfileNav extends Component {
       'min_bet':this.refs.minbet.value,
       'totallimit':this.refs.totallimit.value,
       'startdate':this.refs.startdate.value,
-      'enddate':this.refs.enddate.value
+      'enddate':this.refs.enddate.value,
+      'event_date':this.refs.event_date.value
       }
       postApiRequest(url,data,this.saveEventcallback,this.errorCallback,null)
     }
@@ -46,11 +72,37 @@ export class ProfileNav extends Component {
     }
 
     render() {
+      console.log(this.state)
+        const carouselInstance = (
+        <Carousel>
+          <Carousel.Item>
+            <img width={1000} height={100} alt="1000x300" src="https://www.hashedin.com/img/about_us/pic@2x.jpg"/>
+            <Carousel.Caption>
+              <h3>First slide label</h3>
+              <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+            </Carousel.Caption>
+          </Carousel.Item>
+          <Carousel.Item>
+            <img width={1000} height={100} alt="1000x300" src="https://www.hashedin.com/img/about_us/pic@2x.jpg"/>
+            <Carousel.Caption>
+              <h3>Second slide label</h3>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            </Carousel.Caption>
+          </Carousel.Item>
+          <Carousel.Item>
+            <img width={1000} height={100} alt="1000x300" src="https://www.hashedin.com/img/about_us/pic@2x.jpg"/>
+            <Carousel.Caption>
+              <h3>Third slide label</h3>
+              <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+            </Carousel.Caption>
+          </Carousel.Item>
+        </Carousel>
+        );
         const navbarInstance = (
-              <Navbar inverse collapseOnSelect>
+              <Navbar className="navbar" inverse collapseOnSelect>
                 <Navbar.Header>
                   <Navbar.Brand>
-                    <a href="#">UDI BABA</a>
+                    <a className="navbarHeader" href="#">UDI BABA</a>
                   </Navbar.Brand>
                   <Navbar.Toggle />
                 </Navbar.Header>
@@ -59,12 +111,14 @@ export class ProfileNav extends Component {
                     <NavItem eventKey={1} onClick={this.showProfile} href="#">Profile</NavItem>
                     <NavItem eventKey={2} onClick={this.showHistory} href="#">History</NavItem>
                     <NavItem eventKey={3} onClick={this.createEvent} href="#">Create Event</NavItem>
+                    <NavItem eventKey={4} onClick={this.addPlayer} href="#">Add Player</NavItem>
                   </Nav>
                 </Navbar.Collapse>
               </Navbar>);
         return (<div>{navbarInstance}
+
           <div className='container'>
-          <div className='col-md-12'>
+          <div className='col-md-12'>{carouselInstance}
           </div> </div>
           <Modal show={this.state.showModal} onHide={this.closeModal}>
           <Modal.Header closeButton>
@@ -80,14 +134,22 @@ export class ProfileNav extends Component {
             <div className="row">
             <label className="col-md-3">Player 1:</label>
             <div className='col-md-7'>
-            <input type="text" name="Player1" ref="Player1" className=" form-control"/>
+            <select  name="Player1" ref="Player1" className="form-control">
+            {this.state.players?this.state.players.map((data,index)=>{
+              return <option key={index} value={data.pk}>{data.fields.name}</option>
+            }):null}
+            </select>
             </div>
             </div>
 
             <div className="row">
             <label className="col-md-3">Player 2:</label>
             <div className='col-md-7'>
-            <input type="text" name="Player2" ref="Player2" className="form-control"/>
+            <select  name="Player2" ref="Player2" className="form-control">
+            {this.state.players?this.state.players.map((data,index)=>{
+              return <option key={index} value={data.pk}>{data.fields.name}</option>
+            }):null}
+            </select>
             </div></div>
 
             <div className="row">
@@ -95,6 +157,13 @@ export class ProfileNav extends Component {
             <div className='col-md-7'>
             <input type="number" name="maxbet" ref="maxbet" className="form-control"/>
             </div></div>
+
+            <div className="row">
+            <label className="col-md-3">Event date:</label>
+            <div className='col-md-7'>
+            <input type="datetime-local" name="event_date" ref="event_date" className="form-control"/>
+            </div>
+            </div>
 
             <div className="row">
             <label className="col-md-3">Min bet</label>
@@ -126,6 +195,26 @@ export class ProfileNav extends Component {
             <Button onClick={this.closeModal}>Close</Button>
           </Modal.Footer>
         </Modal>
-          </div>)
+
+        <Modal show={this.state.addPlayerModal} onHide={this.closePlayerModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Create An Event</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="row">
+            <label className="col-md-3">New Player Name:</label>
+            <div className='col-md-7'>
+            <input type="text" name="newPlayername" ref="newPlayername" className="form-control"/>
+            </div>
+            </div>
+           
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.savePlayer}>Create</Button>
+            <Button onClick={this.closePlayerModal}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+        </div>)
+      
     }
 }
