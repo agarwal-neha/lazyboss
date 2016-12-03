@@ -7,6 +7,7 @@ import datetime
 from django.forms.models import model_to_dict
 from django.core import serializers
 from django.http import JsonResponse
+import odds
 
 
 def index(request):
