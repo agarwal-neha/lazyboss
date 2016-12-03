@@ -2,7 +2,7 @@ from django.shortcuts import render
 import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from models import Player,User,Event,Player_event,Bet,User_profile
+from models import Player,User,Event,Player_event,Bet,User_profile, Player_rating
 import datetime, decimal
 from django.forms.models import model_to_dict
 from django.core import serializers
