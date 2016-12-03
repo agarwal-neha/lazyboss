@@ -16,7 +16,7 @@ EVENT_CATEGORY = (
 class Event(models.Model):
    name = models.CharField(max_length=40)
    event_date = models.DateTimeField()
-   organizer = models.OneToOneField(User)
+   organizer = models.ForeignKey(User)
    start_date = models.DateTimeField()
    end_date = models.DateTimeField()
    description = models.CharField(max_length=100)
@@ -60,7 +60,6 @@ class Bet(models.Model):
 class User_profile(models.Model):
    user = models.ForeignKey(User)
    points = models.IntegerField(default = 0)
-   bet = models.ForeignKey(Bet)
 
    def __unicode__(self):
       return self.user.username

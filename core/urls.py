@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^player/', views.add_player),
     url(r'^create_event/',views.create_event),
     url(r'^get_events/',views.get_events),
+    url(r'^profile/',views.user_details),
 ]
