@@ -79,6 +79,7 @@ def get_players_by_event(request):
     event_id = request.GET.get('event_id')
     players = Player_event.objects.filter(event_id = event_id)
     category = Event.objects.filter(id = event_id).first().category
+    update_rating(event_id)
     player_list = []
     for player in players:
         player_detail = Player.objects.get(id = player.player_id)
@@ -200,3 +201,18 @@ def get_player_current_rating(player_id, category):
 
 	return rating;
 
+def calculate_player_rating(player_id, category):
+	played = Player_event.objects.filter(player__id = player_id, event__category = category).count()
+	won = Event.objects.filter(winner__id = player_id, category = category).count()
+	ratio = float(won)/(played*2)
+	return (ratio)*10;
+
+def update_rating(event_id):
+	players = Player_event.objects.filter(event__id = event_id)
+	category = Event.objects.filter(id = event_id).first().category
+	print category
+	for player in players:
+		calcuated_rating = calculate_player_rating(player.id, category)
+		pr = Player_rating.objects.filter(player_id = player.id, category = category).first()
+		pr.rating = calcuated_rating;
+		pr.save()
