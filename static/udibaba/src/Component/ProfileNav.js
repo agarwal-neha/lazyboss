@@ -4,7 +4,7 @@ import {postApiRequest,getApiRequest} from '../Utils'
 import styles from './ProfileNav.css'
 
 const apiUrl='http://localhost:8000/'
-
+const userdetailsurl = 'http://localhost:8000/profile/'
 export class ProfileNav extends Component {
 
     constructor(props) {
@@ -13,7 +13,7 @@ export class ProfileNav extends Component {
             showModal: false,
             addPlayerModal:false,
             players: null
-        }
+            }
     }
 
     componentDidMount() {
@@ -73,43 +73,19 @@ export class ProfileNav extends Component {
 
     render() {
       console.log(this.state)
-        const carouselInstance = (
-        <Carousel>
-          <Carousel.Item>
-            <img width={1000} height={100} alt="1000x300" src="https://www.hashedin.com/img/about_us/pic@2x.jpg"/>
-            <Carousel.Caption>
-              <h3>First slide label</h3>
-              <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-            </Carousel.Caption>
-          </Carousel.Item>
-          <Carousel.Item>
-            <img width={1000} height={100} alt="1000x300" src="https://www.hashedin.com/img/about_us/pic@2x.jpg"/>
-            <Carousel.Caption>
-              <h3>Second slide label</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-            </Carousel.Caption>
-          </Carousel.Item>
-          <Carousel.Item>
-            <img width={1000} height={100} alt="1000x300" src="https://www.hashedin.com/img/about_us/pic@2x.jpg"/>
-            <Carousel.Caption>
-              <h3>Third slide label</h3>
-              <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
-            </Carousel.Caption>
-          </Carousel.Item>
-        </Carousel>
-        );
+      const {showProfile,showHistory,showLandingpage} = this.props
         const navbarInstance = (
               <Navbar className="navbar" inverse collapseOnSelect>
                 <Navbar.Header>
                   <Navbar.Brand>
-                    <a className="navbarHeader" href="#">UDI BABA</a>
+                    <a className="navbarHeader" onClick={()=>{showLandingpage()}} href="#">UDI BABA</a>
                   </Navbar.Brand>
                   <Navbar.Toggle />
                 </Navbar.Header>
                 <Navbar.Collapse>
                   <Nav>
-                    <NavItem eventKey={1} onClick={this.showProfile} href="#">Profile</NavItem>
-                    <NavItem eventKey={2} onClick={this.showHistory} href="#">History</NavItem>
+                    <NavItem eventKey={1} onClick={()=>{showProfile()}} href="#">Profile</NavItem>
+                    <NavItem eventKey={2} onClick={()=>{showHistory()}} href="#">History</NavItem>
                     <NavItem eventKey={3} onClick={this.createEvent} href="#">Create Event</NavItem>
                     <NavItem eventKey={4} onClick={this.addPlayer} href="#">Add Player</NavItem>
                   </Nav>
@@ -118,7 +94,7 @@ export class ProfileNav extends Component {
         return (<div>{navbarInstance}
 
           <div className='container'>
-          <div className='col-md-12'>{carouselInstance}
+          <div className='col-md-12'>
           </div> </div>
           <Modal show={this.state.showModal} onHide={this.closeModal}>
           <Modal.Header closeButton>

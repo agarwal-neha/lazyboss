@@ -26,3 +26,8 @@
 	height: 300px;
 	margin-left: 5%;
 }
+
+.modal-header {
+	background-color: #007B5B;
+    color: #ffff00;
+}

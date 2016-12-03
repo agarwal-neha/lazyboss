@@ -47,8 +47,8 @@ def create_event(request):
         e.save()
         player1 = data.get("player_1")
         player2 = data.get("player_2")
-        p1 = Player_event(player_id= player1,event_id=e.id)
-        p2 = Player_event(player_id= player2,event_id=e.id)
+        p1 = Player_event(player_id= player1,event_id=e.id,rate_of_return=100)
+        p2 = Player_event(player_id= player2,event_id=e.id,rate_of_return=100)
         p1.save()
         p2.save()
         return HttpResponse()
@@ -62,7 +62,7 @@ def place_bet(request):
     bet_amount = data.get("amount")
     current_user = request.user
     ror = Player_event.objects.get(event_id=data.get("event_id"),player_id=data.get("player_id")).rate_of_return
-    total_bet_amount = bet_amount*ror
+    total_bet_amount = float(bet_amount)*float(ror)
     evt.total_bet_amount += total_bet_amount
     evt.save()
     if(check_if_more_betting_allowed(data.get("event_id"))): 
@@ -75,7 +75,7 @@ def place_bet(request):
 
 def check_if_more_betting_allowed (event_id):
     evt = Event.objects.get(id = event_id)
-    if(total_bet_amount < limit):
+    if(evt.total_bet_amount < evt.limit):
         return True
     else:
         return False
@@ -104,11 +104,10 @@ def get_players_by_event(request):
     event_id = request.GET.get('event_id')
     players = Player_event.objects.filter(event_id = event_id)
     category = Event.objects.filter(id = event_id).first().category
-    update_rating(event_id)
     player_list = []
     for player in players:
         player_detail = Player.objects.get(id = player.player_id)
-        rating = get_player_current_rating(player.id, category)
+        rating = 4.1
         player_dict = {'name':player_detail.name,'rating':rating,'image':player_detail.image_link}
         player_list.append(player_dict)
     return HttpResponse(json.dumps((player_list), default = decimalconverter), content_type = 'application/json')
@@ -145,14 +144,11 @@ def add_player(request):
         new_player.save()
         return HttpResponse("<html><body>Added</body></html>")
 
-def get_player_current_rating():
-    return 4
-
 def index(request):
         return render(request, 'index.html')
 
 def get_bet_details(user_id):
-    bet_detail = models.Bet.objects.filter(user = user_id).values()
+    bet_detail = Bet.objects.filter(user = user_id).values()
 
     return json.dumps(list(bet_detail),default = myconverter2)
 
@@ -164,7 +160,7 @@ def get_user_details(user_id):
     :return: user details
     """
     user_id=1
-    one = models.User_profile.objects.filter(user=user_id)
+    one = User_profile.objects.filter(user=user_id)
     user_detail = one[0]
 
     result = {

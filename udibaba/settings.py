@@ -59,7 +59,7 @@ ROOT_URLCONF = 'udibaba.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['static/udibaba/build','templates'],
+        'DIRS': ['static/udibaba/public','templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

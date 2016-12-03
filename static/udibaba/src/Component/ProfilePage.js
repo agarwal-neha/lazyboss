@@ -1,18 +1,12 @@
 import React,{Component} from 'react'
 import {Form,FormGroup,Col,FormControl,ControlLabel,Checkbox,Button} from 'react-bootstrap'
+import styles from './betHistory.css'
 
-let current_user = {
-  "User" : "Sharon Boyd",
-  "Email" : "sboyd0@illinois.edu",
-  "Phone" : "86-(429)234-7757",
-  "Total_Points" : "$8.95"
-}
 export default class ProfilePage extends Component{
 	constructor(props) {
 		super(props)
 		this.state = {
-			updateMode: false,
-			user: current_user
+			updateMode: false
 		}
 	}
 
@@ -25,9 +19,9 @@ export default class ProfilePage extends Component{
 	}
 
 	render() {
-		const {profileMode} = this.props
+		const {userDetails} = this.props
 		const updateForm = (
-	  <Form horizontal>
+	  <Form className="title" horizontal>
 	    <FormGroup controlId='formHorizontalEmail'>
 	      <Col componentClass={ControlLabel} sm={2}>Email</Col>
 	      <Col sm={10}>
@@ -51,29 +45,29 @@ export default class ProfilePage extends Component{
 	    </FormGroup>
 	  </Form>)
 
-	  const showDetails = (<Form horizontal>
+	  const showDetails = (<Form className="title" horizontal>
 	  	<FormGroup>
       <ControlLabel>Name</ControlLabel>
       <FormControl.Static>
-        {current_user.User}
+        {userDetails.username}
       </FormControl.Static>
     </FormGroup>
     <FormGroup>
       <ControlLabel>Email</ControlLabel>
       <FormControl.Static>
-      {current_user.Email}
+      {userDetails.email}
       </FormControl.Static>
     </FormGroup>
     <FormGroup>
-      <ControlLabel>Phone Number</ControlLabel>
+      <ControlLabel>First name</ControlLabel>
       <FormControl.Static>
-      	{current_user.Phone}
+      	{userDetails.first_name}
       </FormControl.Static>
     </FormGroup>
     <FormGroup>
       <ControlLabel>Available Points</ControlLabel>
       <FormControl.Static>
-      	{current_user.Total_Points}
+      	{userDetails.points}
       </FormControl.Static>
     </FormGroup>
     <Button type='button' onClick={this.changeMode}>
