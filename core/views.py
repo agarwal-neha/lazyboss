@@ -45,15 +45,30 @@ def create_event(request):
 
 @csrf_exempt
 def place_bet(request):
+
     data = json.loads(request.body)
     evt = Event.objects.get(id = data.get("event_id"))
     player = Player.objects.get(id = data.get("player_id"))
     bet_amount = data.get("amount")
     current_user = request.user
-    ror = data.get("return_rate")
-    bet = Bet(event = evt, player = player, amount = bet_amount, rate_of_return = ror, user = current_user)
-    bet.save()
-    return HttpResponse("<html><body>Enjoy betting you sucker</body></html>")
+    ror = Player_event.objects.get(event_id=data.get("event_id"),player_id=data.get("player_id")).rate_of_return
+    total_bet_amount = bet_amount*ror
+    evt.total_bet_amount += total_bet_amount
+    evt.save()
+    if(check_if_more_betting_allowed(data.get("event_id"))): 
+        bet = Bet(event = evt, player = player, amount = bet_amount, rate_of_return = ror, user = current_user)
+        bet.save()
+        return HttpResponse("<html><body>Enjoy betting you sucker</body></html>")
+    else:
+        return HttpResponse("<html><body>betting closed for this event</body></html>")
+
+
+def check_if_more_betting_allowed (event_id):
+    evt = Event.objects.get(id = event_id)
+    if(total_bet_amount < limit):
+        return True
+    else:
+        return False
 
 def get_events(request):
     if request.method == 'GET':
@@ -119,6 +134,9 @@ def add_player(request):
         new_player = Player(name = data.get("name"), rating = player_current_rating)
         new_player.save()
         return HttpResponse("<html><body>Added</body></html>")
+
+def get_player_current_rating():
+    return 4
 
 def index(request):
         return render(request, 'index.html')

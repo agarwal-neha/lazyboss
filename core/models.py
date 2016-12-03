@@ -33,12 +33,15 @@ class Event(models.Model):
    limit = models.IntegerField(default = 0)
    category = models.CharField(max_length=20, choices=EVENT_CATEGORY, blank=True, null=True)
    winner = models.ForeignKey(Player)
+   total_bet_amount = models.IntegerField(default=0)
    def __unicode__(self):
       return self.name
 
 class Player_event (models.Model):
    event = models.ForeignKey(Event)
    player = models.ForeignKey(Player)
+   rate_of_return = models.DecimalField(max_digits=5,decimal_places=2)
+
    def __unicode__(self):
       return self.player.name + self.event.name
 
