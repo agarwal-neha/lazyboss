@@ -13,6 +13,14 @@ EVENT_CATEGORY = (
    ("CARROM", 'Carrom'),
 )
 
+class Player (models.Model):
+   image_link = models.CharField(max_length=1000, default = "")
+   name = models.CharField(max_length=30)
+   rating = models.IntegerField(default = 0)
+
+   def __unicode__(self):
+      return self.name
+
 class Event(models.Model):
    name = models.CharField(max_length=40)
    event_date = models.DateTimeField()
@@ -24,19 +32,9 @@ class Event(models.Model):
    min_bet = models.IntegerField(default = 0)
    limit = models.IntegerField(default = 0)
    category = models.CharField(max_length=20, choices=EVENT_CATEGORY, blank=True, null=True)
-
+   winner = models.ForeignKey(Player)
    def __unicode__(self):
       return self.name
-
-
-class Player (models.Model):
-   image_link = models.CharField(max_length=1000, default = "")
-   name = models.CharField(max_length=30)
-   rating = models.IntegerField(default = 0)
-
-   def __unicode__(self):
-      return self.name
-
 
 class Player_event (models.Model):
    event = models.ForeignKey(Event)
@@ -58,9 +56,9 @@ class Bet(models.Model):
       return str(self.user) + str(self.player)
 
 class User_profile(models.Model):
-   user = models.ForeignKey(User)
+   user = models.OneToOneField(User)
    points = models.IntegerField(default = 0)
-   bet = models.ForeignKey(Bet)
 
    def __unicode__(self):
       return self.user.username
+
