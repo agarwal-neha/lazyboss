@@ -94,11 +94,10 @@ def get_players_by_event(request):
     event_id = request.GET.get('event_id')
     players = Player_event.objects.filter(event_id = event_id)
     category = Event.objects.filter(id = event_id).first().category
-    update_rating(event_id)
     player_list = []
     for player in players:
         player_detail = Player.objects.get(id = player.player_id)
-        rating = get_player_current_rating(player.id, category)
+        rating = 4.1
         player_dict = {'name':player_detail.name,'rating':rating,'image':player_detail.image_link}
         player_list.append(player_dict)
     return HttpResponse(json.dumps((player_list), default = decimalconverter), content_type = 'application/json')
@@ -134,9 +133,6 @@ def add_player(request):
         new_player = Player(name = data.get("name"), rating = player_current_rating)
         new_player.save()
         return HttpResponse("<html><body>Added</body></html>")
-
-def get_player_current_rating():
-    return 4
 
 def index(request):
         return render(request, 'index.html')
