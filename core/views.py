@@ -77,8 +77,7 @@ def get_players_by_event(request):
     player_list = []
     for player in players:
         player_detail = Player.objects.get(id = player.player_id)
-        rating = 1.2
-        #rating = get_player_current_rating(player.id, category)
+        rating = get_player_current_rating(player.id, category)
         player_dict = {'name':player_detail.name,'rating':rating,'image':player_detail.image_link}
         player_list.append(player_dict)
     return HttpResponse(json.dumps((player_list), default = decimalconverter), content_type = 'application/json')
