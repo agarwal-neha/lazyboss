@@ -2,10 +2,9 @@ from django.shortcuts import render
 import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from models import Event,Player,Player_event,Bet
-from django.contrib.auth.models import User
-import models
-import datetime
+
+from models import Player,User,Event,Player_event,Bet,User_profile, Player_rating
+import datetime, decimal
 from django.forms.models import model_to_dict
 from django.core import serializers
 from django.http import JsonResponse
@@ -30,9 +29,10 @@ def create_event(request):
         final_dict['end_date'] = data.get('enddate')
         final_dict['limit'] = data.get('totallimit')
         final_dict['description'] = data.get('desc',"None")
-        final_dict['category'] = data.get('category',"None")
+        final_dict['category'] = data.get('category',"Cricket")
         final_dict['event_date'] = data.get('event_date')
         print final_dict
+        final_dict['winner_id'] = 1
         e = Event(**final_dict)
         e.save()
         player1 = data.get("player_1")
@@ -56,35 +56,41 @@ def place_bet(request):
     return HttpResponse("<html><body>Enjoy betting you sucker</body></html>")
 
 def get_events(request):
-        if request.method == 'GET':
-                current_date = datetime.datetime.now()
-                events = Event.objects.filter(start_date__lte=current_date).values()
-                for event in events:
-                        user = event.get("organizer_id")
-                        user_dict = User.objects.get(id=user)
-                        event['organizer'] = user_dict.__dict__
-                        print "*************",event['id']
-                        players = Player_event.objects.filter(event_id = event['id'])
-                        player_list = []
-                        for player in players:
-                                player_dict ={}
-                                player_dict = player.__dict__
-                                player_detail = Player.objects.get(id = player_dict['player_id'])
-                                player_list.append(player_detail.__dict__)
-                        print "+++++++",players
-                        event['players'] = player_list
-                        print event        
-                return HttpResponse(json.dumps(list(events),default = myconverter), content_type='application/json')
+    if request.method == 'GET':
+        current_date = datetime.datetime.now()
+        events = Event.objects.filter(start_date__lte=current_date).values()
+        for event in events:
+            user = event.get("organizer_id")
+            user_dict = User.objects.get(id=user)
+            event['organizer'] = user_dict.__dict__
+            print "*************",event['id']
+            players = Player_event.objects.filter(event_id = event['id'])
+            player_list = []
+            for player in players:
+                player_dict ={}
+                player_dict = player.__dict__
+                player_detail = Player.objects.get(id = player_dict['player_id'])
+                player_list.append(player_detail.__dict__)
+            event['players'] = player_list
+
+        return HttpResponse(json.dumps(list(events),default = myconverter), content_type='application/json')
 
 def get_players_by_event(request):
-        event_id = request.GET.get('event_id')
-        players = Player_event.objects.filter(event_id = event_id)
-        player_list = []
-        for player in players:
-                player_detail = Player.objects.get(id = player.player_id)
-                player_dict = {'name':player_detail.name,'rating':player_detail.rating,'image':player_detail.image_link}
-                player_list.append(player_dict)
-        return HttpResponse(json.dumps(player_list),content_type = 'application/json')
+    event_id = request.GET.get('event_id')
+    players = Player_event.objects.filter(event_id = event_id)
+    category = Event.objects.filter(id = event_id).first().category
+    player_list = []
+    for player in players:
+        player_detail = Player.objects.get(id = player.player_id)
+        rating = get_player_current_rating(player.id, category)
+        player_dict = {'name':player_detail.name,'rating':rating,'image':player_detail.image_link}
+        player_list.append(player_dict)
+    return HttpResponse(json.dumps((player_list), default = decimalconverter), content_type = 'application/json')
+
+
+def decimalconverter(o):
+   if isinstance(o, decimal.Decimal):
+       return o.__str__()
 
 def myconverter(o):
      if isinstance(o, datetime.datetime):
@@ -108,14 +114,10 @@ def get_all_players(request):
 def add_player(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        player_current_rating = get_player_current_rating()
+        player_current_rating = 4
         new_player = Player(name = data.get("name"), rating = player_current_rating)
         new_player.save()
         return HttpResponse("<html><body>Added</body></html>")
-
-def get_player_current_rating():
-    return 4
-
 
 def index(request):
         return render(request, 'index.html')
@@ -158,4 +160,43 @@ def user_details(request):
         # Extract user details and history
     return HttpResponse(JsonResponse(result), content_type="application/json")
 
+@csrf_exempt
+def update_result(request):
+    data = json.loads(request.body)
+    event_id = data.get("event_id")
+    player_id = data.get("player_id")
+    event = Event.objects.get(id = event_id)
+    event.winner = Player.objects.get(id = player_id)
+    event.save()
+    resolve_event(event.id)
+    return HttpResponse()
+
+def resolve_event(event_id):
+    event = Event.objects.get(id = event_id)
+    winner = event.winner
+    organizer_id = event.organizer_id
+    print "********",organizer_id
+    organizer = User_profile.objects.get(user_id = organizer_id)
+    bets = Bet.objects.filter(event_id = event_id)
+    for bet in bets:
+        user_id = bet.user
+        user = User_profile.objects.get(user_id = user_id)
+        amount = (bet.amount*bet.rate_of_return)/100
+        if bet.player == winner:
+            organizer.points = organizer.points - amount
+            user.points = user.points + amount
+        else:
+            organizer.points = organizer.points + bet.amount
+            user.points = user.points - bet.amount
+        user.save()
+        organizer.save()
+
+
+
+def get_player_current_rating(player_id, category):
+	rating = Player_rating.objects.filter(player__id = player_id, category = category).first().rating
+	if rating is None:
+		return 0
+
+	return rating;
 

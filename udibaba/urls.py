@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from core.views import create_event,get_events,get_players_by_event
+from core.views import create_event,get_events,get_players_by_event,update_result
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^create_event/',create_event),
     url(r'^get_events/',get_events),
     url(r'^get_players_by_event/',get_players_by_event),
+    url(r'^update_result/',update_result),
 ]

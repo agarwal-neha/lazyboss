@@ -9,7 +9,8 @@ export default class LiveEvent extends Component {
   constructor(props){
     super(props)
     this.state={
-      placebetmodal: false
+      placebetmodal: false,
+      updateresult: false
     }
   }
 
@@ -19,12 +20,24 @@ export default class LiveEvent extends Component {
     closeModal = ()=>{
             this.setState({placebetmodal:false})
     }
+    closeupdateModal=()=>{
+      this.setState({updateresult:false})
+    }
+    updateStatus=()=>{
+      this.setState({updateresult:true})
+    }
     success = (response)=>{
       console.log("response")
       alert("Bet placed")
     }
     error =()=>{
       console.log("error")
+    }
+    saveUpdatedresult=()=>{
+      let data={event_id:this.props.event.id,
+        player_id:this.refs.winner.value}
+       postApiRequest('http://localhost:8000/update_result/',data,()=>{alert("Winner updated")},()=>{console.log("Error")},null) 
+      this.closeupdateModal()
     }
     saveBet = ()=> {
       let data = {amount:this.refs.amount.value,
@@ -73,6 +86,7 @@ export default class LiveEvent extends Component {
           <br/><br/>
         <div className="card-block">
           <a className="bet1 btn btn-primary" href="#" onClick={this.placebet}> Place Bet</a>
+          <a className="bet1 btn btn-primary" href="#" onClick={this.updateStatus}> Enter Result</a>
         </div>
         <Modal show={this.state.placebetmodal} onHide={this.closeModal}>
           <Modal.Header closeButton>
@@ -100,7 +114,29 @@ export default class LiveEvent extends Component {
             <Button onClick={this.saveBet}>Placebet</Button>
             <Button onClick={this.closeModal}>Close</Button>
           </Modal.Footer>
+        
+        </Modal><Modal show={this.state.updateresult} onHide={this.closeupdateModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Place a Bet</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="row">
+            <label className="col-md-3">Choose Winner player</label>
+            <div className='col-md-7'>
+            <select ref='winner'>
+            {this.props.event?this.props.event.players.map((data,i)=>{
+              return <option key={i} value={data.id}>{data.name}</option>
+            }):null}
+            </select>
+            </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.saveUpdatedresult}>Save</Button>
+            <Button onClick={this.closeupdateModal}>Close</Button>
+          </Modal.Footer>
         </Modal>
+
         </div>
       );
     }
