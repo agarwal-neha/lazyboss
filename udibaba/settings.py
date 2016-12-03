@@ -59,7 +59,7 @@ ROOT_URLCONF = 'udibaba.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['static/udibaba/build'],
+        'DIRS': ['static/udibaba/build','templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/add_point'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
