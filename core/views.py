@@ -13,6 +13,16 @@ from django.http import JsonResponse
 def index(request):
     return render(request, 'index.html')
 
+def add_points_to_first_time_user(request):
+    if request.user.is_authenticated():
+       current_user = request.user
+       user = User_profile.objects.filter(user_id = request.user)
+       if not user:
+           obj = User_profile(user = current_user,points=300)
+           obj.save()
+    return render(request,'index.html')
+
+
 @csrf_exempt
 def create_event(request):
     if request.method == 'POST':

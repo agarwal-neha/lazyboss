@@ -15,12 +15,14 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from core.views import create_event,get_events,get_players_by_event,update_result
+from core.views import create_event,get_events,get_players_by_event,update_result,add_points_to_first_time_user
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url('^', include('django.contrib.auth.urls')),
     url(r'^', include('core.urls')),
     url(r'^create_event/',create_event),
+    url(r'^add_point/',add_points_to_first_time_user),
     url(r'^get_events/',get_events),
     url(r'^get_players_by_event/',get_players_by_event),
     url(r'^update_result/',update_result),
