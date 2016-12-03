@@ -2,7 +2,7 @@ from django.shortcuts import render
 import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-import models
+from models import Player,User,Event,Player_event,Bet,User_profile
 import datetime
 from django.forms.models import model_to_dict
 from django.core import serializers
@@ -27,6 +27,7 @@ def create_event(request):
         final_dict['description'] = request.POST.get("desc")
         final_dict['category'] = request.POST.get("category")
         final_dict['event_date'] = request.POST.get("event_date")
+        final_dict['winner_id'] = 1
         player1 = request.POST.get("player1")
         player2 = request.POST.get("player2")
         e = Event(**final_dict)
@@ -64,7 +65,6 @@ def get_events(request):
                 player_dict = player.__dict__
                 player_detail = Player.objects.get(id = player_dict['player_id'])
                 player_list.append(player_detail.__dict__)
-            print "+++++++",players
             event['players'] = player_list
 
         return HttpResponse(json.dumps(list(events),default = myconverter), content_type='application/json')
@@ -149,4 +149,35 @@ def user_details(request):
     # Extract user details and history
 
     return HttpResponse(JsonResponse(result), content_type="application/json")
+
+@csrf_exempt
+def update_result(request):
+    event_id = request.POST.get("event_id")
+    player_id = request.POST.get("player_id")
+    event = Event.objects.get(id = event_id)
+    event.winner = Player.objects.get(id = player_id)
+    event.save()
+    resolve_event(event.id)
+    return HttpResponse()
+
+def resolve_event(event_id):
+    event = Event.objects.get(id = event_id)
+    winner = event.winner
+    organizer_id = event.organizer_id
+    print "********",organizer_id
+    organizer = User_profile.objects.get(user_id = organizer_id)
+    bets = Bet.objects.filter(event_id = event_id)
+    for bet in bets:
+        user_id = bet.user
+        user = User_profile.objects.get(user_id = user_id)
+        amount = (bet.amount*bet.rate_of_return)/100
+        if bet.player == winner:
+            organizer.points = organizer.points - amount
+            user.points = user.points + amount
+        else:
+            organizer.points = organizer.points + bet.amount
+            user.points = user.points - bet.amount
+        user.save()
+        organizer.save()
+
 
