@@ -1,0 +1,33 @@
+.navbar {
+	background-color: #007B5B;
+	height: 10%;
+}
+
+.navbar-inverse .navbar-brand {
+	color: #ffff00;
+	font-weight: bold;
+	font-size: 2.0em;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+	color: #ffff00;
+	font-weight: semibold 600;
+	font-size: 1.0em;
+}
+
+.navbar-inverse .navbar-nav {
+	margin-left: 20%;
+}
+
+.carousel {
+	width: 95%;
+}
+.carousel-inner > .item > img, .carousel-inner > .item > a > img {
+	height: 300px;
+	margin-left: 5%;
+}
+
+.modal-header {
+	background-color: #007B5B;
+    color: #ffff00;
+}
