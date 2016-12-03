@@ -2,8 +2,8 @@ from django.shortcuts import render
 import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from models import Player,User,Event,Player_event,Bet,User_profile
-import datetime
+from models import Player,User,Event,Player_event,Bet,User_profile, Player_rating
+import datetime, decimal
 from django.forms.models import model_to_dict
 from django.core import serializers
 from django.http import JsonResponse
@@ -72,12 +72,19 @@ def get_events(request):
 def get_players_by_event(request):
     event_id = request.GET.get('event_id')
     players = Player_event.objects.filter(event_id = event_id)
+    category = Event.objects.filter(id = event_id).first().category
     player_list = []
     for player in players:
         player_detail = Player.objects.get(id = player.player_id)
-        player_dict = {'name':player_detail.name,'rating':player_detail.rating,'image':player_detail.image_link}
+        rating = get_player_current_rating(player.id, category)
+        player_dict = {'name':player_detail.name,'rating':rating,'image':player_detail.image_link}
         player_list.append(player_dict)
-    return HttpResponse(json.dumps(player_list),content_type = 'application/json')
+    return HttpResponse(json.dumps((player_list), default = decimalconverter), content_type = 'application/json')
+
+
+def decimalconverter(o):
+   if isinstance(o, decimal.Decimal):
+       return o.__str__()
 
 def myconverter(o):
    if isinstance(o, datetime.datetime):
@@ -104,9 +111,6 @@ def add_player(request):
 		new_player = Player(name = request.POST.get("name"), rating = player_current_rating)
 		new_player.save()
 		return HttpResponse("<html><body>Added</body></html>")
-
-def get_player_current_rating():
-	return 4
 
 
 def index(request):
@@ -180,4 +184,12 @@ def resolve_event(event_id):
         user.save()
         organizer.save()
 
+
+
+def get_player_current_rating(player_id, category):
+	rating = Player_rating.objects.filter(player__id = player_id, category = category).first().rating
+	if rating is None:
+		return 0
+
+	return rating;
 

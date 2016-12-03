@@ -39,7 +39,6 @@ class Event(models.Model):
 class Player_event (models.Model):
    event = models.ForeignKey(Event)
    player = models.ForeignKey(Player)
-
    def __unicode__(self):
       return self.player.name + self.event.name
 
@@ -62,3 +61,7 @@ class User_profile(models.Model):
    def __unicode__(self):
       return self.user.username
 
+class Player_rating(models.Model):
+	player = models.ForeignKey(Player)
+	rating = models.DecimalField(max_digits=10, decimal_places = 2, default = 0.0)
+	category = models.CharField(max_length = 30, default = "")
