@@ -10,7 +10,7 @@ from django.http import JsonResponse
 
 
 def index(request):
-	return render(request, 'index.html')
+    return render(request, 'index.html')
 
 @csrf_exempt
 def create_event(request):
@@ -40,14 +40,27 @@ def create_event(request):
 
 @csrf_exempt
 def place_bet(request):
-	evt = Event.objects.get(id = request.POST.get("event_id"))
-	player = Player.objects.get(id = request.POST.get("player_id"))
-	bet_amount = request.POST.get("amount")
-	current_user = User.objects.get(id= request.POST.get("user_id"))
-	ror = request.POST.get("return_rate")
-	bet = Bet(event = evt, player = player, amount = bet_amount, rate_of_return = ror, user = current_user)
-	bet.save()
-	return HttpResponse("<html><body>Enjoy betting you sucker</body></html>")
+    evt = Event.objects.get(id = request.POST.get("event_id"))
+    player = Player.objects.get(id = request.POST.get("player_id"))
+    bet_amount = request.POST.get("amount")
+    current_user = User.objects.get(id= request.POST.get("user_id"))
+    ror = Player_event.objects.get(event_id=request.POST.get("event_id"),player_id=request.POST.get("player_id")).rate_of_return
+    total_bet_amount = bet_amount*ror
+    evt.total_bet_amount += total_bet_amount
+    evt.save()
+    if(check_if_more_betting_allowed(request.POST.get("event_id"))): 
+        bet = Bet(event = evt, player = player, amount = bet_amount, rate_of_return = ror, user = current_user)
+        bet.save()
+        return HttpResponse("<html><body>Enjoy betting you sucker</body></html>")
+    else:
+        return HttpResponse("<html><body>betting closed for this event</body></html>")
+
+def check_if_more_betting_allowed (event_id):
+    evt = Event.objects.get(id = event_id)
+    if(total_bet_amount < limit):
+        return True
+    else:
+        return False
 
 def get_events(request):
     if request.method == 'GET':
@@ -91,22 +104,22 @@ def get_userprofile(request):
 
 @csrf_exempt
 def get_all_players(request):
-	if request.method == 'GET':
-		
-		players = Player.objects.all()
-		data = serializers.serialize('json', players)
-		return HttpResponse(data, content_type="application/json")
+    if request.method == 'GET':
+        
+        players = Player.objects.all()
+        data = serializers.serialize('json', players)
+        return HttpResponse(data, content_type="application/json")
 
 @csrf_exempt
 def add_player(request):
-	if request.method == 'POST':
-		player_current_rating = get_player_current_rating()
-		new_player = Player(name = request.POST.get("name"), rating = player_current_rating)
-		new_player.save()
-		return HttpResponse("<html><body>Added</body></html>")
+    if request.method == 'POST':
+        player_current_rating = get_player_current_rating()
+        new_player = Player(name = request.POST.get("name"), rating = player_current_rating)
+        new_player.save()
+        return HttpResponse("<html><body>Added</body></html>")
 
 def get_player_current_rating():
-	return 4
+    return 4
 
 
 def index(request):
